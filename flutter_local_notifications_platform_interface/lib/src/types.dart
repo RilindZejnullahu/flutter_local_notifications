@@ -13,10 +13,10 @@ enum RepeatInterval {
   weekly, 
 
   /// BiWeekly interval.
-  BiWeekly, 
+  biWeekly, 
 
  /// Every Four Weeks interval.
-  EveryFourWeeks, 
+  everyFourWeeks
 }
 
 /// Details of a pending notification that has not been delivered.

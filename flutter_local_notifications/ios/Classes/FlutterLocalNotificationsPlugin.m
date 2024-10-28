@@ -111,7 +111,9 @@ typedef NS_ENUM(NSInteger, RepeatInterval) {
   EveryMinute,
   Hourly,
   Daily,
-  Weekly
+  Weekly,
+  BiWeekly,
+  EveryFourWeeks
 };
 
 typedef NS_ENUM(NSInteger, DateTimeComponents) {
@@ -807,6 +809,16 @@ static FlutterError *getFlutterError(NSError *error) {
   case Weekly:
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7
+                        repeats:YES];
+    break;
+  case BiWeekly:
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
+                        repeats:YES];
+    break;
+  case EveryFourWeeks:
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
                         repeats:YES];
   }
   return nil;

@@ -1,12 +1,8 @@
-## [18.0.0-dev.3]
+## [18.0.1]
 
-* Included changes from 17.2.4 release that was done to add in a privacy manifest file to macOS implementation
+* Added upper bound constraints for [timezone](https://pub.dev/packages/timezone) dependency. This is to allow the plugin and apps pull version 0.10.x if constraints are satisified. Future releases may bump the minimum `timezone` dependency but this approach is being used at the moment as version 0.10.0 of the time `timezone` package introduces a dependency on `http` package. Directly bumping the `flutter_local_notifications` dependency on `timezone` could have introduced dependency conflicts
 
-## [18.0.0-dev.2]
-
-* [iOS] **Breaking change** Removed `onDidReceiveLocalNotification` callback as this was only relevant on iOS versions older than 10
-
-## [18.0.0-dev.1]
+## [18.0.0]
 
 * **Breaking changes** Bumped minimum Flutter SDK requirement to 3.13. Consequently the minimum OS requirements for each platform has been updated as well
   * [Android] minimum Android version is now 4.4 (API level 19)
@@ -17,6 +13,7 @@
   * [Android] `AndroidFlutterLocalNotificationsPlugin`
   * [iOS] `IOSFlutterLocalNotificationsPlugin`
   * [macOS] `MacOSFlutterLocalNotificationsPlugin`
+* [iOS] **Breaking change** Removed `onDidReceiveLocalNotification` callback as this was only relevant on iOS versions older than 10
 * Fixed example app to have the appropriate permissions for foreground services
 * Updated readme when it comes to setting up the `AndroidManifest.xml` file to include details of what's needed for foreground services. Note these details were already available in the API docs
 

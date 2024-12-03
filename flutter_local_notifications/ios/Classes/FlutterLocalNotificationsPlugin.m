@@ -719,92 +719,91 @@ static FlutterError *getFlutterError(NSError *error) {
   return content;
 }
 
-- (UNCalendarNotificationTrigger *)buildUserNotificationCalendarTrigger:(id)arguments API_AVAILABLE(ios(10.0)) {
-    NSString *scheduledDateTime = arguments[SCHEDULED_DATE_TIME];
-    NSString *timeZoneName = arguments[TIME_ZONE_NAME];
-    
-    NSNumber *matchDateComponents = arguments[MATCH_DATE_TIME_COMPONENTS];
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSTimeZone *timezone = [NSTimeZone localTimeZone];
-    calendar.timeZone = timezone;
-    
-    // Configure date formatter with proper timezone
-    NSISO8601DateFormatter *dateFormatter = [[NSISO8601DateFormatter alloc] init];
-    [dateFormatter setTimeZone:timezone];
-    dateFormatter.formatOptions = NSISO8601DateFormatWithFractionalSeconds | 
+- (UNCalendarNotificationTrigger *)buildUserNotificationCalendarTrigger:
+    (id)arguments API_AVAILABLE(ios(10.0)) {
+  NSString *scheduledDateTime = arguments[SCHEDULED_DATE_TIME];
+  NSString *timeZoneName = arguments[TIME_ZONE_NAME];
+
+  NSNumber *matchDateComponents = arguments[MATCH_DATE_TIME_COMPONENTS];
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+  NSTimeZone *timezone = [NSTimeZone localTimeZone];
+  calendar.timeZone = timezone;
+
+  // Configure date formatter with proper timezone
+  NSISO8601DateFormatter *dateFormatter = [[NSISO8601DateFormatter alloc] init];
+  [dateFormatter setTimeZone:timezone];
+  dateFormatter.formatOptions = NSISO8601DateFormatWithFractionalSeconds |
                                 NSISO8601DateFormatWithInternetDateTime;
-    
-    NSDate *date = [dateFormatter dateFromString:scheduledDateTime];
-    
-    // Handle repeating notifications
-    if (matchDateComponents != nil && ![matchDateComponents isKindOfClass:[NSNull class]]) {
-        if ([matchDateComponents integerValue] == Time) {
-            // For repeating daily notifications
-            NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
-            dateComponents.calendar = calendar;
-            
-            // Extract just the time components in local timezone
-            NSDateComponents *components = [calendar components:(NSCalendarUnitHour | 
-                                                              NSCalendarUnitMinute | 
-                                                              NSCalendarUnitSecond)
-                                                    fromDate:date];
-            
-            dateComponents.hour = components.hour;
-            dateComponents.minute = components.minute;
-            dateComponents.second = components.second;
-            
-            return [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents
-                                                                          repeats:YES];
-        }
-        else if ([matchDateComponents integerValue] == DayOfWeekAndTime) {
-            // For weekly notifications
-            NSDateComponents *components = [calendar components:(NSCalendarUnitWeekday | 
-                                                              NSCalendarUnitHour |
-                                                              NSCalendarUnitMinute | 
-                                                              NSCalendarUnitSecond)
-                                                    fromDate:date];
-            
-            return [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components
-                                                                          repeats:YES];
-        }
-        else if ([matchDateComponents integerValue] == DayOfMonthAndTime) {
-            // For monthly notifications
-            NSDateComponents *components = [calendar components:(NSCalendarUnitDay | 
-                                                              NSCalendarUnitHour |
-                                                              NSCalendarUnitMinute | 
-                                                              NSCalendarUnitSecond)
-                                                    fromDate:date];
-            
-            return [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components
-                                                                          repeats:YES];
-        }
-        else if ([matchDateComponents integerValue] == DateAndTime) {
-            // For specific date with repeats
-            NSDateComponents *components = [calendar components:(NSCalendarUnitMonth | 
-                                                              NSCalendarUnitDay |
-                                                              NSCalendarUnitHour | 
-                                                              NSCalendarUnitMinute |
-                                                              NSCalendarUnitSecond)
-                                                    fromDate:date];
-            
-            return [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components
-                                                                          repeats:YES];
-        }
-    } else {
-        // For one-time notifications
-        NSDateComponents *components = [calendar components:(NSCalendarUnitYear | 
-                                                          NSCalendarUnitMonth | 
-                                                          NSCalendarUnitDay |
-                                                          NSCalendarUnitHour | 
-                                                          NSCalendarUnitMinute |
-                                                          NSCalendarUnitSecond)
-                                                fromDate:date];
-        
-        return [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components
-                                                                      repeats:NO];
+
+  NSDate *date = [dateFormatter dateFromString:scheduledDateTime];
+
+  // Handle repeating notifications
+  if (matchDateComponents != nil &&
+      ![matchDateComponents isKindOfClass:[NSNull class]]) {
+    if ([matchDateComponents integerValue] == Time) {
+      // For repeating daily notifications
+      NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
+      dateComponents.calendar = calendar;
+
+      // Extract just the time components in local timezone
+      NSDateComponents *components =
+          [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute |
+                                NSCalendarUnitSecond)
+                      fromDate:date];
+
+      dateComponents.hour = components.hour;
+      dateComponents.minute = components.minute;
+      dateComponents.second = components.second;
+
+      return [UNCalendarNotificationTrigger
+          triggerWithDateMatchingComponents:dateComponents
+                                    repeats:YES];
+    } else if ([matchDateComponents integerValue] == DayOfWeekAndTime) {
+      // For weekly notifications
+      NSDateComponents *components =
+          [calendar components:(NSCalendarUnitWeekday | NSCalendarUnitHour |
+                                NSCalendarUnitMinute | NSCalendarUnitSecond)
+                      fromDate:date];
+
+      return [UNCalendarNotificationTrigger
+          triggerWithDateMatchingComponents:components
+                                    repeats:YES];
+    } else if ([matchDateComponents integerValue] == DayOfMonthAndTime) {
+      // For monthly notifications
+      NSDateComponents *components =
+          [calendar components:(NSCalendarUnitDay | NSCalendarUnitHour |
+                                NSCalendarUnitMinute | NSCalendarUnitSecond)
+                      fromDate:date];
+
+      return [UNCalendarNotificationTrigger
+          triggerWithDateMatchingComponents:components
+                                    repeats:YES];
+    } else if ([matchDateComponents integerValue] == DateAndTime) {
+      // For specific date with repeats
+      NSDateComponents *components =
+          [calendar components:(NSCalendarUnitMonth | NSCalendarUnitDay |
+                                NSCalendarUnitHour | NSCalendarUnitMinute |
+                                NSCalendarUnitSecond)
+                      fromDate:date];
+
+      return [UNCalendarNotificationTrigger
+          triggerWithDateMatchingComponents:components
+                                    repeats:YES];
     }
-    
-    return nil;
+  } else {
+    // For one-time notifications
+    NSDateComponents *components =
+        [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth |
+                              NSCalendarUnitDay | NSCalendarUnitHour |
+                              NSCalendarUnitMinute | NSCalendarUnitSecond)
+                    fromDate:date];
+
+    return [UNCalendarNotificationTrigger
+        triggerWithDateMatchingComponents:components
+                                  repeats:NO];
+  }
+
+  return nil;
 }
 
 - (UNTimeIntervalNotificationTrigger *)buildUserNotificationTimeIntervalTrigger:

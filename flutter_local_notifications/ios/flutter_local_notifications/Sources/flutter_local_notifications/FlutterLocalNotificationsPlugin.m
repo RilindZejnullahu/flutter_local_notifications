@@ -109,7 +109,9 @@ typedef NS_ENUM(NSInteger, RepeatInterval) {
   EveryMinute,
   Hourly,
   Daily,
-  Weekly
+  Weekly,
+  BiWeekly,
+  EveryFourWeeks
 };
 
 typedef NS_ENUM(NSInteger, DateTimeComponents) {
@@ -717,9 +719,14 @@ static FlutterError *getFlutterError(NSError *error) {
   NSString *scheduledDateTime = arguments[SCHEDULED_DATE_TIME];
   NSString *timeZoneName = arguments[TIME_ZONE_NAME];
 
+  // Use robust null checking for match date components
   NSNumber *matchDateComponents = arguments[MATCH_DATE_TIME_COMPONENTS];
+  
+  // Setup calendar with specified timezone
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSTimeZone *timezone = [NSTimeZone timeZoneWithName:timeZoneName];
+  
+  // Configure date formatter with proper timezone
   NSISO8601DateFormatter *dateFormatter = [[NSISO8601DateFormatter alloc] init];
   [dateFormatter setTimeZone:timezone];
   dateFormatter.formatOptions = NSISO8601DateFormatWithFractionalSeconds |
@@ -727,8 +734,10 @@ static FlutterError *getFlutterError(NSError *error) {
   NSDate *date = [dateFormatter dateFromString:scheduledDateTime];
 
   calendar.timeZone = timezone;
-  if (matchDateComponents != nil) {
+  
+  if (matchDateComponents != nil && ![matchDateComponents isKindOfClass:[NSNull class]]) {
     if ([matchDateComponents integerValue] == Time) {
+      // For repeating daily notifications (same time every day)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute |
                                 NSCalendarUnitSecond | NSCalendarUnitTimeZone)
@@ -738,6 +747,7 @@ static FlutterError *getFlutterError(NSError *error) {
                                     repeats:YES];
 
     } else if ([matchDateComponents integerValue] == DayOfWeekAndTime) {
+      // For weekly notifications (same day and time every week)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitWeekday | NSCalendarUnitHour |
                                 NSCalendarUnitMinute | NSCalendarUnitSecond |
@@ -747,6 +757,7 @@ static FlutterError *getFlutterError(NSError *error) {
           triggerWithDateMatchingComponents:dateComponents
                                     repeats:YES];
     } else if ([matchDateComponents integerValue] == DayOfMonthAndTime) {
+      // For monthly notifications (same day and time every month)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitDay | NSCalendarUnitHour |
                                 NSCalendarUnitMinute | NSCalendarUnitSecond |
@@ -756,6 +767,7 @@ static FlutterError *getFlutterError(NSError *error) {
           triggerWithDateMatchingComponents:dateComponents
                                     repeats:YES];
     } else if ([matchDateComponents integerValue] == DateAndTime) {
+      // For specific date with repeats (same month/day/time every year)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitMonth | NSCalendarUnitDay |
                                 NSCalendarUnitHour | NSCalendarUnitMinute |
@@ -767,6 +779,8 @@ static FlutterError *getFlutterError(NSError *error) {
     }
     return nil;
   }
+  
+  // For one-time notifications with exact date/time (no repeats)
   NSDateComponents *dateComponents = [calendar
       components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                   NSCalendarUnitHour | NSCalendarUnitMinute |
@@ -802,6 +816,14 @@ static FlutterError *getFlutterError(NSError *error) {
   case Weekly:
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7
+                        repeats:YES];
+  case BiWeekly:
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
+                        repeats:YES];
+  case EveryFourWeeks:
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
                         repeats:YES];
   }
   return nil;

@@ -721,11 +721,11 @@ static FlutterError *getFlutterError(NSError *error) {
 
   // Use robust null checking for match date components
   NSNumber *matchDateComponents = arguments[MATCH_DATE_TIME_COMPONENTS];
-  
+
   // Setup calendar with specified timezone
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSTimeZone *timezone = [NSTimeZone timeZoneWithName:timeZoneName];
-  
+
   // Configure date formatter with proper timezone
   NSISO8601DateFormatter *dateFormatter = [[NSISO8601DateFormatter alloc] init];
   [dateFormatter setTimeZone:timezone];
@@ -734,8 +734,9 @@ static FlutterError *getFlutterError(NSError *error) {
   NSDate *date = [dateFormatter dateFromString:scheduledDateTime];
 
   calendar.timeZone = timezone;
-  
-  if (matchDateComponents != nil && ![matchDateComponents isKindOfClass:[NSNull class]]) {
+
+  if (matchDateComponents != nil &&
+      ![matchDateComponents isKindOfClass:[NSNull class]]) {
     if ([matchDateComponents integerValue] == Time) {
       // For repeating daily notifications (same time every day)
       NSDateComponents *dateComponents =
@@ -779,7 +780,7 @@ static FlutterError *getFlutterError(NSError *error) {
     }
     return nil;
   }
-  
+
   // For one-time notifications with exact date/time (no repeats)
   NSDateComponents *dateComponents = [calendar
       components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |

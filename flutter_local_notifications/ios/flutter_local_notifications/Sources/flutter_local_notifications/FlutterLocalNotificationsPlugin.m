@@ -717,14 +717,14 @@ static FlutterError *getFlutterError(NSError *error) {
 - (UNCalendarNotificationTrigger *)buildUserNotificationCalendarTrigger:
     (id)arguments API_AVAILABLE(ios(10.0)) {
   NSString *scheduledDateTime = arguments[SCHEDULED_DATE_TIME];
-  NSString *timeZoneName = arguments[TIME_ZONE_NAME];
+  NSString *timeZoneName = arguments[TIME_ZONE_NAME];  // Not using anymore, using device localtimezone
 
   // Use robust null checking for match date components
   NSNumber *matchDateComponents = arguments[MATCH_DATE_TIME_COMPONENTS];
   
   // Setup calendar with specified timezone
   NSCalendar *calendar = [NSCalendar currentCalendar];
-  NSTimeZone *timezone = [NSTimeZone timeZoneWithName:timeZoneName];
+  NSTimeZone *timezone = [NSTimeZone localTimeZone];
   
   // Configure date formatter with proper timezone
   NSISO8601DateFormatter *dateFormatter = [[NSISO8601DateFormatter alloc] init];
@@ -740,7 +740,7 @@ static FlutterError *getFlutterError(NSError *error) {
       // For repeating daily notifications (same time every day)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute |
-                                NSCalendarUnitSecond | NSCalendarUnitTimeZone)
+                                NSCalendarUnitSecond)
                       fromDate:date];
       return [UNCalendarNotificationTrigger
           triggerWithDateMatchingComponents:dateComponents
@@ -750,8 +750,7 @@ static FlutterError *getFlutterError(NSError *error) {
       // For weekly notifications (same day and time every week)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitWeekday | NSCalendarUnitHour |
-                                NSCalendarUnitMinute | NSCalendarUnitSecond |
-                                NSCalendarUnitTimeZone)
+                                NSCalendarUnitMinute | NSCalendarUnitSecond)
                       fromDate:date];
       return [UNCalendarNotificationTrigger
           triggerWithDateMatchingComponents:dateComponents
@@ -760,8 +759,7 @@ static FlutterError *getFlutterError(NSError *error) {
       // For monthly notifications (same day and time every month)
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitDay | NSCalendarUnitHour |
-                                NSCalendarUnitMinute | NSCalendarUnitSecond |
-                                NSCalendarUnitTimeZone)
+                                NSCalendarUnitMinute | NSCalendarUnitSecond)
                       fromDate:date];
       return [UNCalendarNotificationTrigger
           triggerWithDateMatchingComponents:dateComponents
@@ -771,20 +769,19 @@ static FlutterError *getFlutterError(NSError *error) {
       NSDateComponents *dateComponents =
           [calendar components:(NSCalendarUnitMonth | NSCalendarUnitDay |
                                 NSCalendarUnitHour | NSCalendarUnitMinute |
-                                NSCalendarUnitSecond | NSCalendarUnitTimeZone)
+                                NSCalendarUnitSecond)
                       fromDate:date];
       return [UNCalendarNotificationTrigger
           triggerWithDateMatchingComponents:dateComponents
                                     repeats:YES];
     }
-    return nil;
   }
   
   // For one-time notifications with exact date/time (no repeats)
   NSDateComponents *dateComponents = [calendar
       components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay |
                   NSCalendarUnitHour | NSCalendarUnitMinute |
-                  NSCalendarUnitSecond | NSCalendarUnitTimeZone)
+                  NSCalendarUnitSecond)
         fromDate:date];
   return [UNCalendarNotificationTrigger
       triggerWithDateMatchingComponents:dateComponents

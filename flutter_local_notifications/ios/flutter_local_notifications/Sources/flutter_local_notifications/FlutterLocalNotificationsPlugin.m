@@ -547,6 +547,8 @@ static FlutterError *getFlutterError(NSError *error) {
 - (void)periodicallyShow:(NSDictionary *_Nonnull)arguments
                   result:(FlutterResult _Nonnull)result
     API_AVAILABLE(ios(10.0)) {
+  NSLog(@"periodicallyShow called with repeatInterval: %@", arguments[REPEAT_INTERVAL]);
+
   UNMutableNotificationContent *content =
       [self buildStandardNotificationContent:arguments result:result];
   UNTimeIntervalNotificationTrigger *trigger =
@@ -799,27 +801,47 @@ static FlutterError *getFlutterError(NSError *error) {
         triggerWithTimeInterval:repeatIntervalMilliseconds / 1000.0
                         repeats:YES];
   }
-  switch ([arguments[REPEAT_INTERVAL] integerValue]) {
+
+
+  if (arguments[REPEAT_INTERVAL] == nil || [arguments[REPEAT_INTERVAL] isKindOfClass:[NSNull class]]) {
+    NSLog(@"REPEAT_INTERVAL is nil or NSNull");
+    result([FlutterError errorWithCode:@"invalid_repeat_interval" 
+                              message:@"Repeat interval is null" 
+                              details:nil]);
+    return;
+  }
+
+  NSInteger repeatInterval = [arguments[REPEAT_INTERVAL] integerValue];
+  NSLog(@"buildUserNotificationTimeIntervalTrigger with repeatInterval: %ld", (long)repeatInterval);
+  
+
+  switch (repeatInterval) {
   case EveryMinute:
+    NSLog(@"Creating EveryMinute trigger");
     return [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:60
                                                               repeats:YES];
   case Hourly:
+    NSLog(@"Creating Hourly trigger");
     return [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:60 * 60
                                                               repeats:YES];
   case Daily:
+    NSLog(@"Creating Daily trigger");
     return
         [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:60 * 60 * 24
                                                            repeats:YES];
     break;
   case Weekly:
+    NSLog(@"Creating Weekly trigger");
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7
                         repeats:YES];
   case BiWeekly:
+    NSLog(@"Creating BiWeekly trigger");
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
                         repeats:YES];
   case EveryFourWeeks:
+    NSLog(@"Creating EveryFourWeeks trigger");
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
                         repeats:YES];

@@ -825,8 +825,9 @@ static FlutterError *getFlutterError(NSError *error) {
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
                         repeats:YES];
-    return nil;
   }
+  return nil;
+}
 
   -(NSDictionary *)buildUserDict : (NSNumber *)id title
       : (NSString *)title presentAlert : (bool)presentAlert presentSound

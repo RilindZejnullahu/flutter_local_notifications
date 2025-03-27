@@ -826,200 +826,203 @@ static FlutterError *getFlutterError(NSError *error) {
         triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
                         repeats:YES];
   }
-  return nil;
-}
-
-- (NSDictionary *)buildUserDict:(NSNumber *)id
-                          title:(NSString *)title
-                   presentAlert:(bool)presentAlert
-                   presentSound:(bool)presentSound
-                   presentBadge:(bool)presentBadge
-                  presentBanner:(bool)presentBanner
-                    presentList:(bool)presentList
-                        payload:(NSString *)payload {
-  NSMutableDictionary *userDict = [[NSMutableDictionary alloc] init];
-  userDict[NOTIFICATION_ID] = id;
-  if (title) {
-    userDict[TITLE] = title;
+    return nil;
   }
-  userDict[PRESENT_ALERT] = [NSNumber numberWithBool:presentAlert];
-  userDict[PRESENT_SOUND] = [NSNumber numberWithBool:presentSound];
-  userDict[PRESENT_BADGE] = [NSNumber numberWithBool:presentBadge];
-  userDict[PRESENT_BANNER] = [NSNumber numberWithBool:presentBanner];
-  userDict[PRESENT_LIST] = [NSNumber numberWithBool:presentList];
-  userDict[PAYLOAD] = payload;
-  return userDict;
-}
 
-- (void)addNotificationRequest:(NSString *)identifier
-                       content:(UNMutableNotificationContent *)content
-                        result:(FlutterResult _Nonnull)result
-                       trigger:(UNNotificationTrigger *)trigger
-    API_AVAILABLE(ios(10.0)) {
-  UNNotificationRequest *notificationRequest =
-      [UNNotificationRequest requestWithIdentifier:identifier
-                                           content:content
-                                           trigger:trigger];
-  UNUserNotificationCenter *center =
-      [UNUserNotificationCenter currentNotificationCenter];
-  [center addNotificationRequest:notificationRequest
-           withCompletionHandler:^(NSError *_Nullable error) {
-             if (error == nil) {
-               result(nil);
-               return;
-             }
-             result(getFlutterError(error));
-           }];
-}
+  -(NSDictionary *)buildUserDict : (NSNumber *)id title
+      : (NSString *)title presentAlert : (bool)presentAlert presentSound
+      : (bool)presentSound presentBadge : (bool)presentBadge presentBanner
+      : (bool)presentBanner presentList : (bool)presentList payload
+      : (NSString *)payload {
+    NSMutableDictionary *userDict = [[NSMutableDictionary alloc] init];
+    userDict[NOTIFICATION_ID] = id;
+    if (title) {
+      userDict[TITLE] = title;
+    }
+    userDict[PRESENT_ALERT] = [NSNumber numberWithBool:presentAlert];
+    userDict[PRESENT_SOUND] = [NSNumber numberWithBool:presentSound];
+    userDict[PRESENT_BADGE] = [NSNumber numberWithBool:presentBadge];
+    userDict[PRESENT_BANNER] = [NSNumber numberWithBool:presentBanner];
+    userDict[PRESENT_LIST] = [NSNumber numberWithBool:presentList];
+    userDict[PAYLOAD] = payload;
+    return userDict;
+  }
 
-- (BOOL)isAFlutterLocalNotification:(NSDictionary *)userInfo {
-  return userInfo != nil && userInfo[NOTIFICATION_ID] &&
-         userInfo[PRESENT_ALERT] && userInfo[PRESENT_SOUND] &&
-         userInfo[PRESENT_BADGE] && userInfo[PAYLOAD];
-}
+  -(void)addNotificationRequest : (NSString *)identifier content
+      : (UNMutableNotificationContent *)content result
+      : (FlutterResult _Nonnull)result trigger
+      : (UNNotificationTrigger *)trigger
+        API_AVAILABLE(ios(10.0)) {
+    UNNotificationRequest *notificationRequest =
+        [UNNotificationRequest requestWithIdentifier:identifier
+                                             content:content
+                                             trigger:trigger];
+    UNUserNotificationCenter *center =
+        [UNUserNotificationCenter currentNotificationCenter];
+    [center addNotificationRequest:notificationRequest
+             withCompletionHandler:^(NSError *_Nullable error) {
+               if (error == nil) {
+                 result(nil);
+                 return;
+               }
+               result(getFlutterError(error));
+             }];
+  }
 
-- (void)handleSelectNotification:(NSInteger)notificationId
-                         payload:(NSString *)payload {
-  NSMutableDictionary *arguments = [[NSMutableDictionary alloc] init];
-  NSNumber *notificationIdNumber = [NSNumber numberWithInteger:notificationId];
-  arguments[@"notificationId"] = notificationIdNumber;
-  arguments[PAYLOAD] = payload;
-  arguments[NOTIFICATION_RESPONSE_TYPE] = [NSNumber numberWithInteger:0];
-  [_channel invokeMethod:@"didReceiveNotificationResponse" arguments:arguments];
-}
+  -(BOOL)isAFlutterLocalNotification : (NSDictionary *)userInfo {
+    return userInfo != nil && userInfo[NOTIFICATION_ID] &&
+           userInfo[PRESENT_ALERT] && userInfo[PRESENT_SOUND] &&
+           userInfo[PRESENT_BADGE] && userInfo[PAYLOAD];
+  }
 
-- (BOOL)containsKey:(NSString *)key forDictionary:(NSDictionary *)dictionary {
-  return dictionary[key] != [NSNull null] && dictionary[key] != nil;
-}
+  -(void)handleSelectNotification : (NSInteger)notificationId payload
+      : (NSString *)payload {
+    NSMutableDictionary *arguments = [[NSMutableDictionary alloc] init];
+    NSNumber *notificationIdNumber =
+        [NSNumber numberWithInteger:notificationId];
+    arguments[@"notificationId"] = notificationIdNumber;
+    arguments[PAYLOAD] = payload;
+    arguments[NOTIFICATION_RESPONSE_TYPE] = [NSNumber numberWithInteger:0];
+    [_channel invokeMethod:@"didReceiveNotificationResponse"
+                 arguments:arguments];
+  }
+
+  -(BOOL)containsKey : (NSString *)key forDictionary
+      : (NSDictionary *)dictionary {
+    return dictionary[key] != [NSNull null] && dictionary[key] != nil;
+  }
 
 #pragma mark - UNUserNotificationCenterDelegate
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center
-       willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:
-             (void (^)(UNNotificationPresentationOptions))completionHandler
-    API_AVAILABLE(ios(10.0)) {
-  if (![self
-          isAFlutterLocalNotification:notification.request.content.userInfo]) {
-    return;
-  }
-  UNNotificationPresentationOptions presentationOptions = 0;
-  NSNumber *presentAlertValue =
-      (NSNumber *)notification.request.content.userInfo[PRESENT_ALERT];
-  NSNumber *presentSoundValue =
-      (NSNumber *)notification.request.content.userInfo[PRESENT_SOUND];
-  NSNumber *presentBadgeValue =
-      (NSNumber *)notification.request.content.userInfo[PRESENT_BADGE];
-  NSNumber *presentBannerValue =
-      (NSNumber *)notification.request.content.userInfo[PRESENT_BANNER];
-  NSNumber *presentListValue =
-      (NSNumber *)notification.request.content.userInfo[PRESENT_LIST];
-  bool presentAlert = [presentAlertValue boolValue];
-  bool presentSound = [presentSoundValue boolValue];
-  bool presentBadge = [presentBadgeValue boolValue];
-  bool presentBanner = [presentBannerValue boolValue];
-  bool presentList = [presentListValue boolValue];
-  if (@available(iOS 14.0, *)) {
-    if (presentBanner) {
-      presentationOptions |= UNNotificationPresentationOptionBanner;
+  -(void)userNotificationCenter
+      : (UNUserNotificationCenter *)center willPresentNotification
+      : (UNNotification *)notification withCompletionHandler
+      : (void (^)(UNNotificationPresentationOptions))completionHandler
+        API_AVAILABLE(ios(10.0)) {
+    if (![self isAFlutterLocalNotification:notification.request.content
+                                               .userInfo]) {
+      return;
     }
-    if (presentList) {
-      presentationOptions |= UNNotificationPresentationOptionList;
-    }
-  } else {
-    if (presentAlert) {
-      presentationOptions |= UNNotificationPresentationOptionAlert;
-    }
-  }
-  if (presentSound) {
-    presentationOptions |= UNNotificationPresentationOptionSound;
-  }
-  if (presentBadge) {
-    presentationOptions |= UNNotificationPresentationOptionBadge;
-  }
-  completionHandler(presentationOptions);
-}
-
-- (NSMutableDictionary *)extractNotificationResponseDict:
-    (UNNotificationResponse *_Nonnull)response API_AVAILABLE(ios(10.0)) {
-  NSMutableDictionary *notitificationResponseDict =
-      [[NSMutableDictionary alloc] init];
-  NSInteger notificationId =
-      [response.notification.request.identifier integerValue];
-  NSString *payload =
-      (NSString *)response.notification.request.content.userInfo[PAYLOAD];
-  NSNumber *notificationIdNumber = [NSNumber numberWithInteger:notificationId];
-  notitificationResponseDict[@"notificationId"] = notificationIdNumber;
-  notitificationResponseDict[PAYLOAD] = payload;
-  if ([response.actionIdentifier
-          isEqualToString:UNNotificationDefaultActionIdentifier]) {
-    notitificationResponseDict[NOTIFICATION_RESPONSE_TYPE] =
-        [NSNumber numberWithInteger:0];
-  } else if (response.actionIdentifier != nil &&
-             ![response.actionIdentifier
-                 isEqualToString:UNNotificationDismissActionIdentifier]) {
-    notitificationResponseDict[ACTION_ID] = response.actionIdentifier;
-    notitificationResponseDict[NOTIFICATION_RESPONSE_TYPE] =
-        [NSNumber numberWithInteger:1];
-  }
-
-  if ([response respondsToSelector:@selector(userText)]) {
-    notitificationResponseDict[@"input"] =
-        [(UNTextInputNotificationResponse *)response userText];
-  }
-  return notitificationResponseDict;
-}
-
-- (void)userNotificationCenter:(UNUserNotificationCenter *)center
-    didReceiveNotificationResponse:(UNNotificationResponse *)response
-             withCompletionHandler:(void (^)(void))completionHandler
-    API_AVAILABLE(ios(10.0)) {
-  if (![self isAFlutterLocalNotification:response.notification.request.content
-                                             .userInfo]) {
-    return;
-  }
-
-  NSInteger notificationId =
-      [response.notification.request.identifier integerValue];
-  NSString *payload =
-      (NSString *)response.notification.request.content.userInfo[PAYLOAD];
-
-  if ([response.actionIdentifier
-          isEqualToString:UNNotificationDefaultActionIdentifier]) {
-    if (_initialized) {
-      [self handleSelectNotification:notificationId payload:payload];
+    UNNotificationPresentationOptions presentationOptions = 0;
+    NSNumber *presentAlertValue =
+        (NSNumber *)notification.request.content.userInfo[PRESENT_ALERT];
+    NSNumber *presentSoundValue =
+        (NSNumber *)notification.request.content.userInfo[PRESENT_SOUND];
+    NSNumber *presentBadgeValue =
+        (NSNumber *)notification.request.content.userInfo[PRESENT_BADGE];
+    NSNumber *presentBannerValue =
+        (NSNumber *)notification.request.content.userInfo[PRESENT_BANNER];
+    NSNumber *presentListValue =
+        (NSNumber *)notification.request.content.userInfo[PRESENT_LIST];
+    bool presentAlert = [presentAlertValue boolValue];
+    bool presentSound = [presentSoundValue boolValue];
+    bool presentBadge = [presentBadgeValue boolValue];
+    bool presentBanner = [presentBannerValue boolValue];
+    bool presentList = [presentListValue boolValue];
+    if (@available(iOS 14.0, *)) {
+      if (presentBanner) {
+        presentationOptions |= UNNotificationPresentationOptionBanner;
+      }
+      if (presentList) {
+        presentationOptions |= UNNotificationPresentationOptionList;
+      }
     } else {
-      _launchNotificationResponseDict =
-          [self extractNotificationResponseDict:response];
-      _launchingAppFromNotification = true;
+      if (presentAlert) {
+        presentationOptions |= UNNotificationPresentationOptionAlert;
+      }
     }
-    completionHandler();
-  } else if (response.actionIdentifier != nil) {
-    NSMutableDictionary *notificationResponseDict =
-        [self extractNotificationResponseDict:response];
-    NSArray<NSString *> *foregroundActionIdentifiers =
-        [[NSUserDefaults standardUserDefaults]
-            stringArrayForKey:FOREGROUND_ACTION_IDENTIFIERS];
-    if ([foregroundActionIdentifiers indexOfObject:response.actionIdentifier] !=
-        NSNotFound) {
+    if (presentSound) {
+      presentationOptions |= UNNotificationPresentationOptionSound;
+    }
+    if (presentBadge) {
+      presentationOptions |= UNNotificationPresentationOptionBadge;
+    }
+    completionHandler(presentationOptions);
+  }
+
+  -(NSMutableDictionary *)extractNotificationResponseDict
+      : (UNNotificationResponse *_Nonnull)response
+        API_AVAILABLE(ios(10.0)) {
+    NSMutableDictionary *notitificationResponseDict =
+        [[NSMutableDictionary alloc] init];
+    NSInteger notificationId =
+        [response.notification.request.identifier integerValue];
+    NSString *payload =
+        (NSString *)response.notification.request.content.userInfo[PAYLOAD];
+    NSNumber *notificationIdNumber =
+        [NSNumber numberWithInteger:notificationId];
+    notitificationResponseDict[@"notificationId"] = notificationIdNumber;
+    notitificationResponseDict[PAYLOAD] = payload;
+    if ([response.actionIdentifier
+            isEqualToString:UNNotificationDefaultActionIdentifier]) {
+      notitificationResponseDict[NOTIFICATION_RESPONSE_TYPE] =
+          [NSNumber numberWithInteger:0];
+    } else if (response.actionIdentifier != nil &&
+               ![response.actionIdentifier
+                   isEqualToString:UNNotificationDismissActionIdentifier]) {
+      notitificationResponseDict[ACTION_ID] = response.actionIdentifier;
+      notitificationResponseDict[NOTIFICATION_RESPONSE_TYPE] =
+          [NSNumber numberWithInteger:1];
+    }
+
+    if ([response respondsToSelector:@selector(userText)]) {
+      notitificationResponseDict[@"input"] =
+          [(UNTextInputNotificationResponse *)response userText];
+    }
+    return notitificationResponseDict;
+  }
+
+  -(void)userNotificationCenter
+      : (UNUserNotificationCenter *)center didReceiveNotificationResponse
+      : (UNNotificationResponse *)response withCompletionHandler
+      : (void (^)(void))completionHandler
+        API_AVAILABLE(ios(10.0)) {
+    if (![self isAFlutterLocalNotification:response.notification.request.content
+                                               .userInfo]) {
+      return;
+    }
+
+    NSInteger notificationId =
+        [response.notification.request.identifier integerValue];
+    NSString *payload =
+        (NSString *)response.notification.request.content.userInfo[PAYLOAD];
+
+    if ([response.actionIdentifier
+            isEqualToString:UNNotificationDefaultActionIdentifier]) {
       if (_initialized) {
-        [_channel invokeMethod:@"didReceiveNotificationResponse"
-                     arguments:notificationResponseDict];
+        [self handleSelectNotification:notificationId payload:payload];
       } else {
-        _launchNotificationResponseDict = notificationResponseDict;
+        _launchNotificationResponseDict =
+            [self extractNotificationResponseDict:response];
         _launchingAppFromNotification = true;
       }
-    } else {
-      if (!actionEventSink) {
-        actionEventSink = [[ActionEventSink alloc] init];
+      completionHandler();
+    } else if (response.actionIdentifier != nil) {
+      NSMutableDictionary *notificationResponseDict =
+          [self extractNotificationResponseDict:response];
+      NSArray<NSString *> *foregroundActionIdentifiers =
+          [[NSUserDefaults standardUserDefaults]
+              stringArrayForKey:FOREGROUND_ACTION_IDENTIFIERS];
+      if ([foregroundActionIdentifiers
+              indexOfObject:response.actionIdentifier] != NSNotFound) {
+        if (_initialized) {
+          [_channel invokeMethod:@"didReceiveNotificationResponse"
+                       arguments:notificationResponseDict];
+        } else {
+          _launchNotificationResponseDict = notificationResponseDict;
+          _launchingAppFromNotification = true;
+        }
+      } else {
+        if (!actionEventSink) {
+          actionEventSink = [[ActionEventSink alloc] init];
+        }
+
+        [actionEventSink addItem:notificationResponseDict];
+        [_flutterEngineManager startEngineIfNeeded:actionEventSink
+                                   registerPlugins:registerPlugins];
       }
 
-      [actionEventSink addItem:notificationResponseDict];
-      [_flutterEngineManager startEngineIfNeeded:actionEventSink
-                                 registerPlugins:registerPlugins];
+      completionHandler();
     }
-
-    completionHandler();
   }
-}
 
-@end
+  @end

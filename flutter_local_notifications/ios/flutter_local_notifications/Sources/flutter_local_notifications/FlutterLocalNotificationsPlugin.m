@@ -549,7 +549,6 @@ static FlutterError *getFlutterError(NSError *error) {
     API_AVAILABLE(ios(10.0)) {
   NSLog(@"periodicallyShow called with repeatInterval: %@",
         arguments[REPEAT_INTERVAL]);
-  print("CALLING periodicallyShow");
   UNMutableNotificationContent *content =
       [self buildStandardNotificationContent:arguments result:result];
   UNTimeIntervalNotificationTrigger *trigger =

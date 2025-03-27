@@ -833,11 +833,21 @@ static FlutterError *getFlutterError(NSError *error) {
         triggerWithTimeInterval:(60 * 60 * 24 * 7 * 2) - 3600
                         repeats:YES];
   case EveryFourWeeks:
-    NSLog(@"Creating EveryFourWeeks trigger");
-    return [UNTimeIntervalNotificationTrigger
-        triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
-                        repeats:YES];
-  }
+    {
+      NSLog(@"Creating EveryFourWeeks trigger");
+      NSTimeInterval interval = 60 * 60 * 24 * 7 * 4;
+      // Check current DST offset
+      NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
+      NSInteger dstOffset = [localTimeZone daylightSavingTimeOffset];
+      // Adjust interval if needed
+      if (dstOffset != 0) {
+        NSLog(@"Adjusting for DST offset: %ld seconds", (long)dstOffset);
+        interval -= dstOffset;
+      }
+      return [UNTimeIntervalNotificationTrigger
+          triggerWithTimeInterval:interval
+                          repeats:YES];
+    }
   return nil;
 }
 

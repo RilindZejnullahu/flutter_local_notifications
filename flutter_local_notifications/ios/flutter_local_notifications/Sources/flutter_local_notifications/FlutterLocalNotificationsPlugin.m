@@ -828,38 +828,34 @@ static FlutterError *getFlutterError(NSError *error) {
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7
                         repeats:YES];
-  case BiWeekly:
-    {
-      NSLog(@"Creating BiWeekly trigger");
-      NSTimeInterval interval = (60 * 60 * 24 * 7 * 2) - 3600;
-      // Check current DST offset
-      NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
-      NSInteger dstOffset = [localTimeZone daylightSavingTimeOffset];
-      // Adjust interval if needed
-      if (dstOffset != 0) {
-        NSLog(@"Adjusting for DST offset: %ld seconds", (long)dstOffset);
-        interval -= dstOffset;
-      }
-      return [UNTimeIntervalNotificationTrigger
-          triggerWithTimeInterval:interval
-                          repeats:YES];
+  case BiWeekly: {
+    NSLog(@"Creating BiWeekly trigger");
+    NSTimeInterval interval = (60 * 60 * 24 * 7 * 2) - 3600;
+    // Check current DST offset
+    NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
+    NSInteger dstOffset = [localTimeZone daylightSavingTimeOffset];
+    // Adjust interval if needed
+    if (dstOffset != 0) {
+      NSLog(@"Adjusting for DST offset: %ld seconds", (long)dstOffset);
+      interval -= dstOffset;
     }
-  case EveryFourWeeks:
-    {
-      NSLog(@"Creating EveryFourWeeks trigger");
-      NSTimeInterval interval = 60 * 60 * 24 * 7 * 4;
-      // Check current DST offset
-      NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
-      NSInteger dstOffset = [localTimeZone daylightSavingTimeOffset];
-      // Adjust interval if needed
-      if (dstOffset != 0) {
-        NSLog(@"Adjusting for DST offset: %ld seconds", (long)dstOffset);
-        interval -= dstOffset;
-      }
-      return [UNTimeIntervalNotificationTrigger
-          triggerWithTimeInterval:interval
-                          repeats:YES];
+    return [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:interval
+                                                              repeats:YES];
+  }
+  case EveryFourWeeks: {
+    NSLog(@"Creating EveryFourWeeks trigger");
+    NSTimeInterval interval = 60 * 60 * 24 * 7 * 4;
+    // Check current DST offset
+    NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
+    NSInteger dstOffset = [localTimeZone daylightSavingTimeOffset];
+    // Adjust interval if needed
+    if (dstOffset != 0) {
+      NSLog(@"Adjusting for DST offset: %ld seconds", (long)dstOffset);
+      interval -= dstOffset;
     }
+    return [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:interval
+                                                              repeats:YES];
+  }
   }
   return nil;
 }

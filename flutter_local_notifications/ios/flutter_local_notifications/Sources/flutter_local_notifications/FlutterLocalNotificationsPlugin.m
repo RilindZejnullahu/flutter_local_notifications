@@ -825,19 +825,19 @@ static FlutterError *getFlutterError(NSError *error) {
                                                            repeats:YES];
   case Weekly:
     NSLog(@"Creating Weekly trigger");
-    return
-        [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:60 * 60 * 24 * 7
-                                                           repeats:YES];
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7
+                        repeats:YES];
   case BiWeekly:
     NSLog(@"Creating BiWeekly trigger");
-    return
-        [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
-                                                           repeats:YES];
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
+                        repeats:YES];
   case EveryFourWeeks:
     NSLog(@"Creating EveryFourWeeks trigger");
-    return
-        [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
-                                                           repeats:YES];
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
+                        repeats:YES];
   }
   return nil;
 }

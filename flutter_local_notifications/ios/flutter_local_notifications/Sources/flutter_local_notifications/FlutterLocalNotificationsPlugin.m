@@ -819,7 +819,7 @@ static FlutterError *getFlutterError(NSError *error) {
                         repeats:YES];
   case BiWeekly:
     return [UNTimeIntervalNotificationTrigger
-        triggerWithTimeInterval:(60 * 60 * 24 * 7 * 2) - 3600
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
                         repeats:YES];
   case EveryFourWeeks:
     return [UNTimeIntervalNotificationTrigger

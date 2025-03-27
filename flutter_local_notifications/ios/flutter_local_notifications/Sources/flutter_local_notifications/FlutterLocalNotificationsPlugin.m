@@ -547,7 +547,8 @@ static FlutterError *getFlutterError(NSError *error) {
 - (void)periodicallyShow:(NSDictionary *_Nonnull)arguments
                   result:(FlutterResult _Nonnull)result
     API_AVAILABLE(ios(10.0)) {
-  NSLog(@"periodicallyShow called with repeatInterval: %@", arguments[REPEAT_INTERVAL]);
+  NSLog(@"periodicallyShow called with repeatInterval: %@",
+        arguments[REPEAT_INTERVAL]);
 
   UNMutableNotificationContent *content =
       [self buildStandardNotificationContent:arguments result:result];
@@ -804,18 +805,18 @@ static FlutterError *getFlutterError(NSError *error) {
                         repeats:YES];
   }
 
-
-  if (arguments[REPEAT_INTERVAL] == nil || [arguments[REPEAT_INTERVAL] isKindOfClass:[NSNull class]]) {
+  if (arguments[REPEAT_INTERVAL] == nil ||
+      [arguments[REPEAT_INTERVAL] isKindOfClass:[NSNull class]]) {
     NSLog(@"REPEAT_INTERVAL is nil or NSNull");
-    result([FlutterError errorWithCode:@"invalid_repeat_interval" 
-                              message:@"Repeat interval is null" 
-                              details:nil]);
+    result([FlutterError errorWithCode:@"invalid_repeat_interval"
+                               message:@"Repeat interval is null"
+                               details:nil]);
     return;
   }
 
   NSInteger repeatInterval = [arguments[REPEAT_INTERVAL] integerValue];
-  NSLog(@"buildUserNotificationTimeIntervalTrigger with repeatInterval: %ld", (long)repeatInterval);
-  
+  NSLog(@"buildUserNotificationTimeIntervalTrigger with repeatInterval: %ld",
+        (long)repeatInterval);
 
   switch (repeatInterval) {
   case EveryMinute:

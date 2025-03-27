@@ -821,20 +821,10 @@ static FlutterError *getFlutterError(NSError *error) {
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:(60 * 60 * 24 * 7 * 2) - 3600
                         repeats:YES];
-  case BiWeekly: {
-      NSTimeInterval interval = 60 * 60 * 24 * 7 * 4;
-      
-      // Log current time and expected firing time
-      NSDate *currentDate = [NSDate date];
-      NSDate *expectedFireDate = [currentDate dateByAddingTimeInterval:interval];
-      
-      NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-      formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss Z";
-      
-      return [UNTimeIntervalNotificationTrigger
-          triggerWithTimeInterval:interval
-                          repeats:YES];
-  }
+  case EveryFourWeeks:
+    return [UNTimeIntervalNotificationTrigger
+        triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
+                        repeats:YES];
   return nil;
 }
 

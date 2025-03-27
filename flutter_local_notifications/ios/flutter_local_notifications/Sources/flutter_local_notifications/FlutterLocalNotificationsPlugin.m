@@ -831,7 +831,7 @@ static FlutterError *getFlutterError(NSError *error) {
   case BiWeekly:
     {
       NSLog(@"Creating BiWeekly trigger");
-      NSTimeInterval interval = 60 * 60 * 24 * 7 * 2;
+      NSTimeInterval interval = (60 * 60 * 24 * 7 * 2) - 3600;
       // Check current DST offset
       NSTimeZone *localTimeZone = [NSTimeZone localTimeZone];
       NSInteger dstOffset = [localTimeZone daylightSavingTimeOffset];

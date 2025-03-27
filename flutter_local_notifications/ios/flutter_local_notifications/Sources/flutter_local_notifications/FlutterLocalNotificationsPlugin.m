@@ -821,7 +821,7 @@ static FlutterError *getFlutterError(NSError *error) {
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7 * 2
                         repeats:YES];
-  case EveryFourWeeks: {
+  case EveryFourWeeks:
     return [UNTimeIntervalNotificationTrigger
         triggerWithTimeInterval:60 * 60 * 24 * 7 * 4
                         repeats:YES];
